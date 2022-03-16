@@ -11,10 +11,11 @@
 #define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-int xMap, yMap, xValue, yValue;
+int xMap, yMap, xValue, yValue, x;
 
 void setup() {
   // put your setup code here, to run once:
+  pinMode(2, INPUT);
   Serial.begin(115200);
 
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
@@ -35,14 +36,28 @@ void setup() {
 }
 
 void loop() {
+  int x;
+  bool sci = false;
   xValue = analogRead(joyX);
   yValue = analogRead(joyY);
-  xMap = map(xValue, 0,1023, 0, 7);
-  yMap = map(yValue,0,1023,7,0);
+  Serial.print(xValue);
+
+  //Draw routines
   display.clearDisplay();
-  display.drawPixel(xMap, yMap, WHITE);
-  display.display();
-  for (int i = 0; 1 < 120; 1++) {
-    display.drawPixel();
+  if (sci == false) {
+    display.drawLine(0, 32, 128, 32, WHITE);
+    display.drawLine(64, 0, 64, 64, WHITE);
+    for (int x = -64; x < 64; x++) {
+      float equation = 0.1 * (pow(x, 2) -19);
+      display.drawPixel(x + 64, (equation * (-1)) + 32, WHITE);
+    }
+  } else {
+    float equation = (54 + 102);
+    display.setCursor(0, 32);
+    display.setTextColor(WHITE);
+    display.setTextSize(1);
+    display.println(equation);
   }
+  display.display();
+
 }
